@@ -4,11 +4,64 @@ import matplotlib.pyplot as plt
 import h5py
 from skimage.data import shepp_logan_phantom
 from scipy.fft import fft2, fftshift, ifftshift
+from scipy.fft import ifft2
+from scipy.ndimage import gaussian_filter
 
 H5_FILE       = "mri.h5" # from "https://github.com/mylyu/M4Raw"
 MRI_SLICE_IDX = 0               # 0 to 17
 OUT_DIR       = "kspace_results"
 os.makedirs(OUT_DIR, exist_ok=True)
+
+def reconstruct_image_from_kspace(kspace: np.ndarray) -> np.ndarray:
+    return np.abs(ifft2(fftshift(kspace)))
+
+def normalize_image(img: np.ndarray) -> np.ndarray:
+    img_min, img_max = img.min(), img.max()
+    return (img - img_min) / (img_max - img_min + 1e-8)
+
+def save_reconstructed_image(name: str, image: np.ndarray):
+    plt.figure(figsize=(5,5))
+    plt.imshow(image, cmap='gray')
+    plt.title(f"{name}")
+    plt.axis('off')
+    plt.colorbar(fraction=0.046)
+    plt.savefig(os.path.join(OUT_DIR, f"{name}.png"), dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"Saved: {name}.png")
+
+def simulate_partial_kspace(kspace: np.ndarray, fraction: float = 0.5) -> np.ndarray:
+    rows, cols = kspace.shape
+    center_r, center_c = rows // 2, cols // 2
+    half_r, half_c = int(rows * fraction / 2), int(cols * fraction / 2)
+    mask = np.zeros_like(kspace, dtype=bool)
+    mask[center_r - half_r:center_r + half_r, center_c - half_c:center_c + half_c] = True
+    return kspace * mask
+
+def apply_lowpass_filter(kspace: np.ndarray, sigma: float = 0.5) -> np.ndarray:
+    return gaussian_filter(kspace, sigma=sigma)
+
+def apply_highpass_filter(kspace: np.ndarray, sigma: float = 0.5) -> np.ndarray:
+    return kspace - gaussian_filter(kspace, sigma=sigma)
+
+def reconstruct_all_versions(kspace: np.ndarray, prefix: str):
+    full_img = normalize_image(reconstruct_image_from_kspace(kspace))
+    save_reconstructed_image(f"{prefix}_recon_full", full_img)
+
+    partial_kspace = simulate_partial_kspace(kspace, fraction=0.5)
+    partial_img = normalize_image(reconstruct_image_from_kspace(partial_kspace))
+    save_reconstructed_image(f"{prefix}_recon_partial", partial_img)
+
+    lowpass_kspace = apply_lowpass_filter(kspace)
+    lowpass_img = normalize_image(reconstruct_image_from_kspace(lowpass_kspace))
+    save_reconstructed_image(f"{prefix}_recon_lowpass", lowpass_img)
+
+    highpass_kspace = apply_highpass_filter(kspace)
+    highpass_img = normalize_image(reconstruct_image_from_kspace(highpass_kspace))
+    save_reconstructed_image(f"{prefix}_recon_highpass", highpass_img)
+
+    print(f"\n{prefix}_recon_full serves as the gold standard for comparison.")
+    print("It uses the complete k-space data, representing the highest fidelity reconstruction.\n")
+
 
 def save_kspace(name: str, kspace: np.ndarray, original_image=None):
     """Save k-space as 3 PNGs + .npz file."""
@@ -63,8 +116,9 @@ def process_phantom():
     plt.savefig(os.path.join(OUT_DIR, "original_phantom.png"), dpi=150, bbox_inches='tight')
     plt.close()
 
-    kspace = fftshift(fft2(ifftshift(img)))
+    kspace = fftshift(fft2(img))
     save_kspace("shepp_logan", kspace, original_image=img.real)
+    reconstruct_all_versions(kspace, "shepp_logan")
 
 # 2) using  Real MRI slice :
 def process_mri_image():
@@ -94,10 +148,11 @@ def process_mri_image():
     plt.savefig(os.path.join(OUT_DIR, "original_mri_slice.png"), dpi=150, bbox_inches='tight')
     plt.close()
      
-    kspace = fftshift(fft2(ifftshift(img)))
+    kspace = fftshift(fft2(img))
 
     name = f"mri_image_slice{MRI_SLICE_IDX:03d}"
     save_kspace(name, kspace, original_image=img.real)
+    reconstruct_all_versions(kspace, name)
 
 
 if __name__ == "__main__":
