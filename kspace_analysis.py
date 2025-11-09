@@ -8,8 +8,8 @@ OUT_DIR = "kspace_results"
 RESULTS_DIR = "kspace_analysis"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-def load_image_for_analysis(filepath, crop_title=True):
-    """Load image for analysis, optionally cropping title region."""
+def load_image(filepath):
+    """Load grayscale image and normalize using the same scale."""
     img = plt.imread(filepath)
     if img.ndim == 3:
         img = np.mean(img[:, :, :3], axis=2)  # drop alpha if any
@@ -21,11 +21,6 @@ def load_image_for_analysis(filepath, crop_title=True):
 
     # Normalize globally to [0,1]
     img = (img - img.min()) / (img.max() - img.min() + 1e-8)
-
-    # Crop title region (approximately 30 pixels from top)
-    if crop_title:
-        img = img[35:, :]  # Remove top 30 pixels where title is located
-
     return img
 
 def calculate_sharpness(image):
@@ -50,11 +45,11 @@ def analyze_dataset(prefix):
     print(f"Analyzing: {prefix}")
     print(f"{'=' * 60}\n")
 
-    # Load all four versions (crop titles for clean analysis)
-    full_img = load_image_for_analysis(f"{OUT_DIR}/{prefix}_recon_full.png", crop_title=True)
-    partial_img = load_image_for_analysis(f"{OUT_DIR}/{prefix}_recon_partial.png", crop_title=True)
-    lowpass_img = load_image_for_analysis(f"{OUT_DIR}/{prefix}_recon_lowpass.png", crop_title=True)
-    highpass_img = load_image_for_analysis(f"{OUT_DIR}/{prefix}_recon_highpass.png", crop_title=True)
+    # Load all four versions
+    full_img = load_image(f"{OUT_DIR}/{prefix}_recon_full.png")
+    partial_img = load_image(f"{OUT_DIR}/{prefix}_recon_partial.png")
+    lowpass_img = load_image(f"{OUT_DIR}/{prefix}_recon_lowpass.png")
+    highpass_img = load_image(f"{OUT_DIR}/{prefix}_recon_highpass.png")
 
     # Calculate metrics
     images = {
