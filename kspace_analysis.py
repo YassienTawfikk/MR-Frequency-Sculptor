@@ -9,34 +9,41 @@ RESULTS_DIR = "kspace_analysis"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
 def load_image(filepath):
-    """Load grayscale image and normalize using the same scale."""
+    """Load grayscale image without re-normalizing to [0,1] automatically.
+    If a .npz with raw arrays exists for the prefix we prefer that outside caller."""
     img = plt.imread(filepath)
     if img.ndim == 3:
         img = np.mean(img[:, :, :3], axis=2)  # drop alpha if any
     img = img.astype(np.float32)
-
     # If PNG saved as 8-bit, convert to [0,1]
     if img.max() > 1.5:
         img /= 255.0
-
-    # Normalize globally to [0,1]
-    img = (img - img.min()) / (img.max() - img.min() + 1e-8)
     return img
 
 def calculate_sharpness(image):
-    """Measure edge sharpness using gradient."""
-    gx = ndimage.sobel(image, axis=0)
-    gy = ndimage.sobel(image, axis=1)
+    """Measure edge sharpness using gradient (Sobel)."""
+    gx = ndimage.sobel(image, axis=0, mode='nearest')
+    gy = ndimage.sobel(image, axis=1, mode='nearest')
     return np.mean(np.sqrt(gx ** 2 + gy ** 2))
 
-def calculate_noise(image):
-    """Estimate noise from corner region."""
-    corner = image[0:50, 0:50]
+def calculate_noise(image, corner_frac=0.08):
+    """Estimate noise from corner region (proportional to image size)."""
+    h, w = image.shape
+    corner_size_h = max(1, int(h * corner_frac))
+    corner_size_w = max(1, int(w * corner_frac))
+    corner = image[0:corner_size_h, 0:corner_size_w]
     return np.std(corner)
 
 def calculate_mae(img1, img2):
-    """Mean Absolute Error."""
+    """Mean Absolute Error (assumes same scale)."""
     return np.mean(np.abs(img1 - img2))
+
+def _hide_ticks_and_spines(ax):
+    """Hide ticks and spines but keep axis labels visible."""
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_visible(False)
 
 def analyze_dataset(prefix):
     """Load images and calculate metrics."""
@@ -45,11 +52,27 @@ def analyze_dataset(prefix):
     print(f"Analyzing: {prefix}")
     print(f"{'=' * 60}\n")
 
-    # Load all four versions
-    full_img = load_image(f"{OUT_DIR}/{prefix}_recon_full.png")
-    partial_img = load_image(f"{OUT_DIR}/{prefix}_recon_partial.png")
-    lowpass_img = load_image(f"{OUT_DIR}/{prefix}_recon_lowpass.png")
-    highpass_img = load_image(f"{OUT_DIR}/{prefix}_recon_highpass.png")
+    # Prefer raw npz reconstructions if available
+    npz_path = os.path.join(OUT_DIR, f"{prefix}_recons.npz")
+    if os.path.exists(npz_path):
+        data = np.load(npz_path)
+        full_raw = data['full_raw']
+        partial_raw = data['partial_raw']
+        lowpass_raw = data['lowpass_raw']
+        highpass_raw = data['highpass_raw']
+
+        # Normalize all by the reference full image max so metrics are comparable
+        ref_max = full_raw.max() if full_raw.max() != 0 else 1.0
+        full_img = full_raw / ref_max
+        partial_img = partial_raw / ref_max
+        lowpass_img = lowpass_raw / ref_max
+        highpass_img = highpass_raw / ref_max
+    else:
+        # Fallback to PNG images (assumes the main script saved a consistent scale)
+        full_img = load_image(f"{OUT_DIR}/{prefix}_recon_full.png")
+        partial_img = load_image(f"{OUT_DIR}/{prefix}_recon_partial.png")
+        lowpass_img = load_image(f"{OUT_DIR}/{prefix}_recon_lowpass.png")
+        highpass_img = load_image(f"{OUT_DIR}/{prefix}_recon_highpass.png")
 
     # Calculate metrics
     images = {
@@ -88,27 +111,31 @@ def analyze_dataset(prefix):
     axes[0, 3].set_title('High-pass filtered', fontsize=11, pad=10)
     axes[0, 3].axis('off')
 
-    # Bottom row: Difference maps
-    axes[1, 0].text(0.5, 0.5, 'Reference', ha='center', va='center',
+    # Bottom row: Difference maps (labels moved below each image for clarity)
+    # Bottom-left: reference placeholder
+    axes[1, 0].text(0.5, 0.5, 'Reference\n(no difference)', ha='center', va='center',
                     fontsize=14, fontweight='bold')
     axes[1, 0].axis('off')
 
+    # Partial - Full difference (displayed, label below)
     diff1 = np.abs(full_img - partial_img)
     im1 = axes[1, 1].imshow(diff1, cmap='hot')
-    axes[1, 1].set_title(f'Difference\nMAE: {np.mean(diff1):.4f}', fontsize=10, pad=10)
-    axes[1, 1].axis('off')
+    _hide_ticks_and_spines(axes[1, 1])
+    axes[1, 1].set_xlabel(f'Partial - Full\nMAE: {np.mean(diff1):.4f}', fontsize=10, labelpad=10)
     plt.colorbar(im1, ax=axes[1, 1], fraction=0.046, pad=0.04)
 
+    # Low-pass - Full difference
     diff2 = np.abs(full_img - lowpass_img)
     im2 = axes[1, 2].imshow(diff2, cmap='hot')
-    axes[1, 2].set_title(f'Difference\nMAE: {np.mean(diff2):.4f}', fontsize=10, pad=10)
-    axes[1, 2].axis('off')
+    _hide_ticks_and_spines(axes[1, 2])
+    axes[1, 2].set_xlabel(f'Low-pass - Full\nMAE: {np.mean(diff2):.4f}', fontsize=10, labelpad=10)
     plt.colorbar(im2, ax=axes[1, 2], fraction=0.046, pad=0.04)
 
+    # High-pass - Full difference
     diff3 = np.abs(full_img - highpass_img)
     im3 = axes[1, 3].imshow(diff3, cmap='hot')
-    axes[1, 3].set_title(f'Difference\nMAE: {np.mean(diff3):.4f}', fontsize=10, pad=10)
-    axes[1, 3].axis('off')
+    _hide_ticks_and_spines(axes[1, 3])
+    axes[1, 3].set_xlabel(f'High-pass - Full\nMAE: {np.mean(diff3):.4f}', fontsize=10, labelpad=10)
     plt.colorbar(im3, ax=axes[1, 3], fraction=0.046, pad=0.04)
 
     plt.suptitle(f'Comparison: {prefix}', fontsize=16, fontweight='bold', y=0.98)
