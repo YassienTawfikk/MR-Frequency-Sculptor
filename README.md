@@ -14,10 +14,10 @@ It allows users to see how different k-space filtering strategies affect image q
 * **K-space Processing**: Convert MRI images to k-space using 2D FFT.
 * **Reconstruction Methods**:
 
-  * Full k-space (reference/gold standard)
-  * Partial k-space (simulates undersampling)
-  * Low-pass filtering (preserves low frequencies)
-  * High-pass filtering (preserves high frequencies)
+    * Full k-space (reference/gold standard)
+    * Partial k-space (simulates undersampling)
+    * Low-pass filtering (preserves low frequencies)
+    * High-pass filtering (preserves high frequencies)
 * **Quantitative Analysis**: Compute metrics like sharpness, noise, and mean absolute error (MAE).
 * **Support for Multiple Data Sources**: Synthetic phantoms (Shepp-Logan) and real MRI slices.
 * **Automated Reports**: Generate text reports and visual comparison plots.
@@ -133,18 +133,19 @@ python scripts/launch_gui.py
 ```
 
 **GUI Features:**
-- **Image Selection**: 
-  - Load Shepp-Logan phantom
-  - Load MRI slices from H5 files with slice selector
-  - Load custom images from files (PNG, JPG, NPY, NPZ)
-- **K-Space Processing**: 
-  - Process individual methods (Full, Partial, Low-pass, High-pass)
-  - Process all methods at once
-  - Adjustable parameters (partial fraction, filter sigma)
-- **Real-time Visualization**: 
-  - View original and processed images side-by-side
-  - See quality metrics (sharpness, noise, MAE) for each reconstruction
-  - Difference maps comparing processed images to reference
+
+- **Image Selection**:
+    - Load Shepp-Logan phantom
+    - Load MRI slices from H5 files with slice selector
+    - Load custom images from files (PNG, JPG, NPY, NPZ)
+- **K-Space Processing**:
+    - Process individual methods (Full, Partial, Low-pass, High-pass)
+    - Process all methods at once
+    - Adjustable parameters (partial fraction, filter sigma)
+- **Real-time Visualization**:
+    - View original and processed images side-by-side
+    - See quality metrics (sharpness, noise, MAE) for each reconstruction
+    - Difference maps comparing processed images to reference
 - **Responsive Design**: Modern, user-friendly interface with progress indicators
 
 ### Command Line Scripts
