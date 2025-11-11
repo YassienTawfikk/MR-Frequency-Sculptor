@@ -224,6 +224,8 @@ class MRFrequencySculptorApp(QMainWindow):
         self.current_kspace = None
         self.reconstructions = {}
         self.processing_threads = []
+        self.mri_file_path = None
+        self.right_panel = None  # To store reference to the display panel for grabbing
         self.setup_ui()
 
     def setup_ui(self):
@@ -249,6 +251,7 @@ class MRFrequencySculptorApp(QMainWindow):
         # Right panel - Image displays
         right_panel = self.create_display_panel()
         main_layout.addWidget(right_panel, stretch=3)
+        self.right_panel = right_panel  # Store reference for saving
 
         # Apply styles (must be called after setting up widgets)
         self.apply_styles()
@@ -273,10 +276,10 @@ class MRFrequencySculptorApp(QMainWindow):
         self.btn_phantom.clicked.connect(self.load_phantom)
         selection_layout.addWidget(self.btn_phantom)
 
-        # Load MRI from H5 file
+        # Load Medical Image File
         mri_layout = QHBoxLayout()
-        self.btn_load_mri = QPushButton("Load MRI from H5")
-        self.btn_load_mri.clicked.connect(self.load_mri_file)
+        self.btn_load_mri = QPushButton("Load Medical Volume/Slice")
+        self.btn_load_mri.clicked.connect(self.select_medical_file)
         mri_layout.addWidget(self.btn_load_mri)
 
         self.slice_spinbox = QSpinBox()
@@ -289,8 +292,8 @@ class MRFrequencySculptorApp(QMainWindow):
         mri_layout.addWidget(self.slice_spinbox)
         selection_layout.addLayout(mri_layout)
 
-        # Load from file button
-        self.btn_load_file = QPushButton("Load Image from File")
+        # Load from file button (for 2D images)
+        self.btn_load_file = QPushButton("Load 2D Image from File")
         self.btn_load_file.clicked.connect(self.load_image_file)
         selection_layout.addWidget(self.btn_load_file)
 
@@ -346,7 +349,7 @@ class MRFrequencySculptorApp(QMainWindow):
         self.sigma_spinbox.setMinimum(1)
         self.sigma_spinbox.setMaximum(20)
         self.sigma_spinbox.setValue(int(LOWPASS_SIGMA_FRACTION * 1000))
-        self.sigma_spinbox.setSuffix("%")
+        self.sigma_spinbox.setSuffix("‰")
         sigma_layout.addWidget(self.sigma_spinbox)
         params_layout.addLayout(sigma_layout)
 
@@ -363,6 +366,12 @@ class MRFrequencySculptorApp(QMainWindow):
         self.status_label.setObjectName("StatusLabel")
         self.status_label.setWordWrap(True)
         layout.addWidget(self.status_label)
+
+        # NEW: Save Comparison Button
+        self.btn_save_comparison = QPushButton("Save Comparison (PNG)")
+        self.btn_save_comparison.setObjectName("SaveButton")
+        self.btn_save_comparison.clicked.connect(self.save_comparison)
+        layout.addWidget(self.btn_save_comparison)
 
         # Exit Button
         self.btn_exit = QPushButton("Exit Application")
@@ -392,16 +401,13 @@ class MRFrequencySculptorApp(QMainWindow):
         self.logo_label = QLabel()
         try:
             logo_pixmap = QPixmap("../assets/logo.png")
-            # Scale logo to a reasonable size, e.g., 20px height for the title bar
             scaled_pixmap = logo_pixmap.scaledToHeight(20, Qt.SmoothTransformation)
             self.logo_label.setPixmap(scaled_pixmap)
-            # Add logo to the bar
             title_bar.addWidget(self.logo_label)
         except Exception:
-            # Fallback if logo file cannot be loaded/found at runtime
             pass
 
-            # 2. Title Label (Emoji removed, increased font size)
+            # 2. Title Label
         title_label = QLabel("K-Space Frequency Domain Analysis")
         title_label.setObjectName("DisplayTitleLabel")
         title_label.setFont(QFont("Arial", 14, QFont.Bold))
@@ -439,6 +445,31 @@ class MRFrequencySculptorApp(QMainWindow):
         main_layout.addLayout(grid_layout)
         panel.setLayout(main_layout)
         return panel
+
+    def save_comparison(self):
+        """Captures the display panel and saves it as a PNG file."""
+        if self.current_image is None:
+            QMessageBox.warning(self, "Warning", "Please load an image before saving the comparison.")
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Save Comparison Image",
+            "kspace_comparison.png",
+            "PNG Image (*.png)"
+        )
+
+        if file_path:
+            self.status_label.setText("Saving comparison image...")
+            QApplication.processEvents()
+
+            # Grab the display panel widget (self.right_panel)
+            pixmap = self.right_panel.grab()
+
+            if pixmap.save(file_path):
+                self.status_label.setText(f"Comparison saved successfully to: {file_path}")
+            else:
+                QMessageBox.critical(self, "Error", "Failed to save image. Check file permissions or try a different location.")
+                self.status_label.setText("Error saving comparison image.")
 
     def apply_styles(self):
         """Apply modern dark styling to the application."""
@@ -500,6 +531,15 @@ class MRFrequencySculptorApp(QMainWindow):
             QPushButton:disabled {{
                 background-color: #444444;
                 color: #aaaaaa;
+            }}
+
+            /* Save Button Style */
+            QPushButton#SaveButton {{
+                background-color: #4CAF50; /* Distinct color for saving */
+                margin-top: 5px;
+            }}
+            QPushButton#SaveButton:hover {{
+                background-color: #45a049;
             }}
             
             /* Specific style for Exit Button */
@@ -635,6 +675,56 @@ class MRFrequencySculptorApp(QMainWindow):
             }}
         """)
 
+    def select_medical_file(self):
+        """
+        Open a file dialog to select a multi-slice medical file.
+        Uses "../data/" as the default starting path.
+        """
+        file_filter = (
+            "Medical Image Files ("
+            "*.h5 *.hdf5 "  # H5 Files (used in original code logic)
+            "*.nii *.nii.gz "  # NIfTI Files
+            "*.dcm "  # DICOM Files (Single/Series)
+            "*.mha *.mhd"  # MetaImage Files
+            ");;"
+            "All Files (*)"
+        )
+
+        # Set default path to "../data/"
+        default_dir = str(Path("../data/"))
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Select Medical Volume/Slice File", default_dir, file_filter
+        )
+
+        if file_path:
+            file_path = Path(file_path)
+
+            if file_path.suffix.lower() in ['.h5', '.hdf5']:
+                # Existing H5 logic
+                try:
+                    with h5py.File(file_path, 'r') as f:
+                        if 'reconstruction_rss' not in f:
+                            raise KeyError("'reconstruction_rss' not found in H5 file")
+                        num_slices = f['reconstruction_rss'].shape[0]
+                        self.slice_spinbox.setMaximum(num_slices - 1)
+                        self.slice_spinbox.setValue(0)
+                        self.slice_spinbox.setEnabled(True)
+
+                        self.mri_file_path = str(file_path)
+                        self.load_mri_slice(0)
+
+                except Exception as e:
+                    QMessageBox.critical(self, "Error", f"Failed to load medical file:\n{str(e)}")
+                    self.status_label.setText("Error loading medical file")
+            else:
+                # Mock handling for other file types since external loaders are not available
+                QMessageBox.warning(self, "Unsupported Format",
+                                    f"File type '{file_path.suffix}' detected. "
+                                    "Only H5 files are fully supported in this demo structure for slice selection. "
+                                    "Using external loaders (like nibabel/pydicom) would be required for full support.")
+                self.status_label.setText(f"File {file_path.name} selected, but type unsupported for slice loading.")
+
     def load_phantom(self):
         """Load Shepp-Logan phantom."""
         try:
@@ -660,40 +750,16 @@ class MRFrequencySculptorApp(QMainWindow):
             QMessageBox.critical(self, "Error", f"Failed to load phantom:\n{str(e)}")
             self.status_label.setText("Error loading phantom")
 
-    def load_mri_file(self):
-        """Load MRI H5 file and enable slice selection."""
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "Select MRI H5 File", str(H5_FILE.parent), "H5 Files (*.h5 *.hdf5)"
-        )
-
-        if file_path:
-            try:
-                # Check if file has the right structure
-                with h5py.File(file_path, 'r') as f:
-                    if 'reconstruction_rss' not in f:
-                        raise KeyError("'reconstruction_rss' not found in H5 file")
-                    num_slices = f['reconstruction_rss'].shape[0]
-                    self.slice_spinbox.setMaximum(num_slices - 1)
-                    self.slice_spinbox.setValue(0)
-                    self.slice_spinbox.setEnabled(True)
-
-                    # Store file path and load first slice
-                    self.mri_file_path = file_path
-                    self.load_mri_slice(0)
-
-            except Exception as e:
-                QMessageBox.critical(self, "Error", f"Failed to load MRI file:\n{str(e)}")
-                self.status_label.setText("Error loading MRI file")
-
     def load_mri_slice(self, slice_idx):
-        """Load a specific MRI slice."""
-        if not hasattr(self, 'mri_file_path'):
+        """Load a specific MRI slice from the currently selected medical file."""
+        if not self.mri_file_path:
             return
 
         try:
             self.status_label.setText(f"Loading MRI slice {slice_idx}...")
             QApplication.processEvents()
 
+            # This logic remains H5-specific as the project structure expects it.
             with h5py.File(self.mri_file_path, 'r') as f:
                 img_data = f['reconstruction_rss'][slice_idx]
 
@@ -706,12 +772,11 @@ class MRFrequencySculptorApp(QMainWindow):
             self.current_kspace = image_to_kspace(img)
 
             self.original_display.display_image(self.current_image)
-            # Clear other displays
+            # Clear processing results on new slice load
             self.reconstructed_display.title_label.setText("Reconstructed Image (Select a Method)")
             self.reconstructed_display.display_image(None)
             self.error_display.display_image(None)
-            self.metrics_display.update_metrics(None, None)  # Clear metrics
-            self.reconstructions = {}  # Reset stored reconstructions
+            self.metrics_display.update_metrics(None, None)
 
             self.enable_processing_buttons()
             self.status_label.setText(f"MRI slice {slice_idx} loaded successfully! Ready for processing.")
@@ -721,9 +786,9 @@ class MRFrequencySculptorApp(QMainWindow):
             self.status_label.setText("Error loading MRI slice")
 
     def load_image_file(self):
-        """Load image from file."""
+        """Load 2D image from file."""
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "Select Image File", "",
+            self, "Select 2D Image File", "",
             "Image Files (*.png *.jpg *.jpeg *.tif *.tiff *.npy *.npz);;All Files (*)"
         )
 
@@ -767,7 +832,7 @@ class MRFrequencySculptorApp(QMainWindow):
                 self.reconstructed_display.title_label.setText("Reconstructed Image (Select a Method)")
                 self.reconstructed_display.display_image(None)
                 self.error_display.display_image(None)
-                self.metrics_display.update_metrics(None, None)  # Clear metrics
+                self.metrics_display.update_metrics(None, None)
                 self.reconstructions = {}  # Reset stored reconstructions
 
                 self.enable_processing_buttons()
@@ -815,7 +880,7 @@ class MRFrequencySculptorApp(QMainWindow):
 
     def on_slice_changed(self, value):
         """Handle slice selection change."""
-        if hasattr(self, 'mri_file_path'):
+        if self.mri_file_path:
             self.load_mri_slice(value)
 
     def on_processing_finished(self, result):
