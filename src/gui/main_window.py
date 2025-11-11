@@ -452,9 +452,11 @@ class MRFrequencySculptorApp(QMainWindow):
             QMessageBox.warning(self, "Warning", "Please load an image before saving the comparison.")
             return
 
+        # Open the save dialog in the root directory by default
         file_path, _ = QFileDialog.getSaveFileName(
-            self, "Save Comparison Image",
-            "kspace_comparison.png",
+            self,
+            "Save Comparison Image",
+            "/kspace_comparison.png",  # start in root directory
             "PNG Image (*.png)"
         )
 
