@@ -17,7 +17,7 @@ def load_phantom() -> np.ndarray:
         Phantom image as complex64 array.
     """
     img = shepp_logan_phantom().astype(np.complex64)
-    
+
     # Save original phantom
     plt.figure(figsize=FIGURE_SIZE)
     im = plt.imshow(np.abs(img), cmap='gray')
@@ -26,7 +26,7 @@ def load_phantom() -> np.ndarray:
     plt.colorbar(im, fraction=0.046)
     plt.savefig(RESULTS_RAW_DIR / "original_phantom.png", dpi=DPI, bbox_inches='tight')
     plt.close()
-    
+
     return img
 
 
@@ -49,22 +49,22 @@ def load_mri_slice(slice_idx: int = None, h5_file: Path = None) -> np.ndarray:
         slice_idx = MRI_SLICE_IDX
     if h5_file is None:
         h5_file = H5_FILE
-    
+
     if not h5_file.exists():
         raise FileNotFoundError(f"MRI data file not found: {h5_file}")
-    
+
     with h5py.File(h5_file, "r") as f:
         if 'reconstruction_rss' not in f:
             raise KeyError("'reconstruction_rss' not found in H5 file.")
         img_data = f['reconstruction_rss'][slice_idx]  # (256, 256) float32
-    
+
     img = img_data.astype(np.complex64)
     img_max = img.max()
     if img_max > 0:
         img /= img_max
     else:
         print("Warning: Image is all zero!")
-    
+
     # Save original MRI slice
     plt.figure(figsize=FIGURE_SIZE)
     im = plt.imshow(np.abs(img), cmap='gray')
@@ -73,6 +73,5 @@ def load_mri_slice(slice_idx: int = None, h5_file: Path = None) -> np.ndarray:
     plt.colorbar(im, fraction=0.046)
     plt.savefig(RESULTS_RAW_DIR / "original_mri_slice.png", dpi=DPI, bbox_inches='tight')
     plt.close()
-    
-    return img
 
+    return img

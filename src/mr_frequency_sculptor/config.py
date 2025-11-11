@@ -13,7 +13,7 @@ RESULTS_RAW_DIR = RESULTS_DIR / "raw"
 RESULTS_ANALYSIS_DIR = RESULTS_DIR / "analysis"
 
 # Data files
-H5_FILE = DATA_DIR / "mri.h5"  # from "https://github.com/mylyu/M4Raw"
+H5_FILE = DATA_DIR / "mri.h5"  # from `https://github.com/mylyu/M4Raw`
 MRI_SLICE_IDX = 0  # 0 to 17
 
 # Processing parameters

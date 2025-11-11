@@ -3,4 +3,3 @@ MR Frequency Sculptor - A tool for exploring k-space manipulations in MRI recons
 """
 
 __version__ = "0.1.0"
-

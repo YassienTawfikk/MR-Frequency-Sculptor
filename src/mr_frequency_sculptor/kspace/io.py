@@ -19,7 +19,7 @@ def save_reconstructed_image(name: str, image: np.ndarray, output_dir: Path = No
     """
     if output_dir is None:
         output_dir = RESULTS_RAW_DIR
-    
+
     plt.figure(figsize=FIGURE_SIZE)
     plt.imshow(image, cmap=COLORMAP, vmin=0, vmax=1)
     plt.title(f"{name}")
@@ -42,7 +42,7 @@ def save_kspace(name: str, kspace: np.ndarray, original_image=None, output_dir: 
     """
     if output_dir is None:
         output_dir = RESULTS_RAW_DIR
-    
+
     mag = np.abs(kspace)
     mag_log = np.log(mag + 1)  # avoid log(0)
     phase = np.angle(kspace)
@@ -84,8 +84,8 @@ def save_kspace(name: str, kspace: np.ndarray, original_image=None, output_dir: 
 
 
 def save_reconstructions(prefix: str, full_raw: np.ndarray, partial_raw: np.ndarray,
-                        lowpass_raw: np.ndarray, highpass_raw: np.ndarray,
-                        output_dir: Path = None):
+                         lowpass_raw: np.ndarray, highpass_raw: np.ndarray,
+                         output_dir: Path = None):
     """
     Save all reconstruction arrays to npz file.
     
@@ -99,7 +99,7 @@ def save_reconstructions(prefix: str, full_raw: np.ndarray, partial_raw: np.ndar
     """
     if output_dir is None:
         output_dir = RESULTS_RAW_DIR
-    
+
     np.savez(
         output_dir / f"{prefix}_recons.npz",
         full_raw=full_raw,
@@ -108,4 +108,3 @@ def save_reconstructions(prefix: str, full_raw: np.ndarray, partial_raw: np.ndar
         highpass_raw=highpass_raw
     )
     print(f"Saved raw reconstructions to: {prefix}_recons.npz")
-

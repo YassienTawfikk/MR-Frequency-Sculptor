@@ -19,4 +19,3 @@ __all__ = [
     'image_to_kspace',
     'reconstruct_all_versions',
 ]
-

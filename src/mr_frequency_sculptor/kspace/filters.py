@@ -73,4 +73,3 @@ def apply_highpass_filter(kspace: np.ndarray, sigma_fraction: float = 0.05) -> n
     """
     mask = gaussian_kspace_mask(kspace.shape, sigma_fraction=sigma_fraction)
     return kspace * (1.0 - mask)
-

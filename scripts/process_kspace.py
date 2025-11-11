@@ -46,13 +46,12 @@ if __name__ == "__main__":
     print("MR Frequency Sculptor - K-Space Processing")
     print("=" * 60)
     print()
-    
+
     process_phantom()
     process_mri_image()
-    
+
     print(f"\nAll results saved to: {RESULTS_RAW_DIR}")
     print("   *_mag.png      → log-magnitude of k-space")
     print("   *_phase.png    → phase")
     print("   *_kspace.png   → real part")
     print("   *_recons.npz   → raw reconstructions (full, partial, lowpass, highpass)")
-

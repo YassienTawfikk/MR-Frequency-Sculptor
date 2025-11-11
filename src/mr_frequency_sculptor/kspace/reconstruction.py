@@ -33,4 +33,3 @@ def normalize_by_reference(img: np.ndarray, ref_max: float) -> np.ndarray:
     if ref_max == 0:
         return img.copy()
     return img / ref_max
-

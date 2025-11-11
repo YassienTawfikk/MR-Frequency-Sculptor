@@ -9,4 +9,3 @@ __all__ = [
     'calculate_mae',
     'analyze_dataset',
 ]
-

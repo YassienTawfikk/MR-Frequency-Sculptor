@@ -52,20 +52,20 @@ def _save_report(prefix: str, metrics_data: list, report_path: Path,
         highpass_img: High-pass filtered reconstruction image.
     """
     from datetime import datetime
-    
+
     # Calculate additional metrics
     diff_partial = np.abs(full_img - partial_img)
     diff_lowpass = np.abs(full_img - lowpass_img)
     diff_highpass = np.abs(full_img - highpass_img)
-    
+
     mae_partial = np.mean(diff_partial)
     mae_lowpass = np.mean(diff_lowpass)
     mae_highpass = np.mean(diff_highpass)
-    
+
     max_diff_partial = np.max(diff_partial)
     max_diff_lowpass = np.max(diff_lowpass)
     max_diff_highpass = np.max(diff_highpass)
-    
+
     # Generate report
     report_lines = [
         "=" * 70,
@@ -79,13 +79,13 @@ def _save_report(prefix: str, metrics_data: list, report_path: Path,
         f"{'Version':<20} {'Sharpness':<15} {'Noise':<15} {'MAE':<15}",
         "-" * 70,
     ]
-    
+
     for metric in metrics_data:
         report_lines.append(
             f"{metric['name']:<20} {metric['sharpness']:<15.6f} "
             f"{metric['noise']:<15.6f} {metric['error']:<15.6f}"
         )
-    
+
     report_lines.extend([
         "",
         "DIFFERENCE ANALYSIS",
@@ -117,7 +117,7 @@ def _save_report(prefix: str, metrics_data: list, report_path: Path,
         "",
         "=" * 70,
     ])
-    
+
     # Write report to file
     with open(report_path, 'w') as f:
         f.write('\n'.join(report_lines))
@@ -157,7 +157,7 @@ def analyze_dataset(prefix: str):
             print(f"Expected file: {full_path}")
             print(f"Please run 'python scripts/process_kspace.py' first to generate the data.\n")
             return
-        
+
         full_img = load_image(full_path)
         partial_img = load_image(RESULTS_RAW_DIR / f"{prefix}_recon_partial.png")
         lowpass_img = load_image(RESULTS_RAW_DIR / f"{prefix}_recon_lowpass.png")
@@ -248,4 +248,3 @@ def analyze_dataset(prefix: str):
 
     print(f"Saved: {prefix}_comparison.png")
     print(f"Saved: {prefix}_report.txt\n")
-

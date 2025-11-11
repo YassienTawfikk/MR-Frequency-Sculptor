@@ -49,4 +49,3 @@ def calculate_mae(img1: np.ndarray, img2: np.ndarray) -> float:
         Mean absolute error.
     """
     return np.mean(np.abs(img1 - img2))
-
