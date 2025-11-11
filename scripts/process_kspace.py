@@ -8,11 +8,11 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from src.mr_frequency_sculptor.data import load_phantom, load_mri_slice
-from src.mr_frequency_sculptor.kspace import image_to_kspace
-from src.mr_frequency_sculptor.kspace.processing import reconstruct_all_versions
-from src.mr_frequency_sculptor.kspace.io import save_kspace
-from src.mr_frequency_sculptor.config import RESULTS_RAW_DIR, MRI_SLICE_IDX, get_dataset_raw_dir
+from src.data import load_phantom, load_mri_slice
+from src.kspace import image_to_kspace
+from src.kspace.processing import reconstruct_all_versions
+from src.kspace import save_kspace
+from src.config import RESULTS_RAW_DIR, MRI_SLICE_IDX, get_dataset_raw_dir
 
 
 def process_phantom():

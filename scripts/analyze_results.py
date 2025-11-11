@@ -6,8 +6,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from src.mr_frequency_sculptor.analysis import analyze_dataset
-from src.mr_frequency_sculptor.config import RESULTS_ANALYSIS_DIR, MRI_SLICE_IDX
+from src.analysis import analyze_dataset
+from src.config import RESULTS_ANALYSIS_DIR, MRI_SLICE_IDX
 
 if __name__ == "__main__":
     print("\n" + "=" * 60)
