@@ -7,6 +7,12 @@ It allows users to see how different k-space filtering strategies affect image q
 
 ---
 
+## Demo
+
+https://github.com/user-attachments/assets/8e276210-3328-45f3-ac60-1af6480b6e21
+
+---
+
 ## Features
 
 ### Core Functionality
