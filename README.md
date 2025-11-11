@@ -70,7 +70,7 @@ $$I(x, y) = |\mathcal{F}^{-1}(K(k_x, k_y))|$$
 ### 1. Full K-space
 
 * **Objective**: Serve as a reference for comparison.
-* **Visualization Placeholder**:
+* **Visual**:
   <table>
   <tr>
   <td><img src="https://github.com/user-attachments/assets/1f479e1b-b546-43d9-8045-4c722b8383ff" width="250"></td>
@@ -80,7 +80,7 @@ $$I(x, y) = |\mathcal{F}^{-1}(K(k_x, k_y))|$$
 ### 2. Low-Pass Filtering
 
 * **Objective**: Remove high frequencies for a smoother image.
-* **Visualization Placeholder**:
+* **Visual**:
   <table>
   <tr>
   <td><img src="https://github.com/user-attachments/assets/3bc740dd-581a-442d-a294-92a845010f82" width="250"></td>
@@ -90,7 +90,7 @@ $$I(x, y) = |\mathcal{F}^{-1}(K(k_x, k_y))|$$
 ### 3. High-Pass Filtering
 
 * **Objective**: Remove low frequencies to highlight edges.
-* **Visualization Placeholder**:
+* **Visual**:
   <table>
   <tr>
   <td><img src="https://github.com/user-attachments/assets/fc85dd96-a4bd-4216-951f-dca9e0ae2587" width="250"></td>
@@ -100,7 +100,7 @@ $$I(x, y) = |\mathcal{F}^{-1}(K(k_x, k_y))|$$
 ### 4. Partial K-space
 
 * **Objective**: Simulate undersampling effects.
-* **Visualization Placeholder**:
+* **Visual**:
   <table>
   <tr>
   <td><img src="https://github.com/user-attachments/assets/c01bc262-6924-4eed-8c87-8564137e281d" width="250"></td>
