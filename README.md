@@ -12,6 +12,7 @@ A Python tool for exploring k-space (frequency domain) manipulations in MRI imag
   - High-pass filtering (preserves high frequencies)
 - **Quality Analysis**: Quantitative metrics (sharpness, noise, MAE) and visual comparisons
 - **Support for Multiple Data Sources**: Synthetic phantoms (Shepp-Logan) and real MRI data
+- **Automated Reports**: Text reports with detailed metrics and statistics
 
 ## Project Structure
 
@@ -66,7 +67,9 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Process K-space Data
+### Quick Start
+
+**Step 1: Process K-space Data**
 
 Process MRI images and generate k-space reconstructions:
 
@@ -75,13 +78,13 @@ python scripts/process_kspace.py
 ```
 
 This will:
-- Process the Shepp-Logan phantom
-- Process real MRI slice (if `data/mri.h5` is available)
+- Process the Shepp-Logan phantom (always works)
+- Process real MRI slice (if `data/mri.h5` exists)
 - Generate k-space visualizations (magnitude, phase, real part)
 - Create reconstructions using all methods
 - Save results to `results/raw/`
 
-### Analyze Results
+**Step 2: Analyze Results**
 
 Analyze reconstruction quality and generate comparison plots:
 
@@ -93,7 +96,18 @@ This will:
 - Calculate quality metrics (sharpness, noise, MAE)
 - Generate side-by-side comparison plots
 - Create difference maps showing artifacts
+- Generate text reports with detailed metrics
 - Save results to `results/analysis/`
+
+### Full Workflow
+
+```bash
+# Step 1: Process k-space
+python scripts/process_kspace.py
+
+# Step 2: Analyze results
+python scripts/analyze_results.py
+```
 
 ## Configuration
 
@@ -119,6 +133,94 @@ Edit `src/mr_frequency_sculptor/config.py` to customize:
 
 ### Analysis Results (`results/analysis/`)
 - `*_comparison.png`: Side-by-side comparison with difference maps
+- `*_report.txt`: Detailed text report with metrics and statistics
+
+The report files include:
+- Image quality metrics (Sharpness, Noise, MAE)
+- Difference analysis (comparing each method to full k-space)
+- Image statistics (min, max, mean, std)
+- Timestamp and metric descriptions
+
+## Testing
+
+### Verify Installation
+
+Test that the package can be imported:
+
+```bash
+python -c "import sys; sys.path.insert(0, 'src'); from src.mr_frequency_sculptor import config; print('✓ Package works!')"
+```
+
+### Expected Results
+
+After running both scripts, you should have:
+
+```
+results/
+├── raw/
+│   ├── original_phantom.png
+│   ├── shepp_logan_mag.png
+│   ├── shepp_logan_phase.png
+│   ├── shepp_logan_kspace.png
+│   ├── shepp_logan_recon_full.png
+│   ├── shepp_logan_recon_partial.png
+│   ├── shepp_logan_recon_lowpass.png
+│   ├── shepp_logan_recon_highpass.png
+│   └── shepp_logan_recons.npz
+└── analysis/
+    ├── shepp_logan_comparison.png
+    └── shepp_logan_report.txt
+```
+
+## Troubleshooting
+
+### Missing Dependencies
+If you get `ModuleNotFoundError`, install requirements:
+```bash
+pip install -r requirements.txt
+```
+
+### Missing MRI Data
+If `data/mri.h5` is missing, the script will:
+- ✅ Still process the Shepp-Logan phantom
+- ⚠️ Skip MRI processing with a warning
+- ✅ Continue normally
+
+### Import Errors
+If you get import errors, make sure you're running from the project root:
+```bash
+cd /path/to/MR-Frequency-Sculptor
+python scripts/process_kspace.py
+```
+
+### Missing Files Error
+If you run the analysis script before processing, you'll get a helpful error message:
+```
+Error: Required files not found for 'shepp_logan'.
+Please run 'python scripts/process_kspace.py' first to generate the data.
+```
+
+## Project History / Migration Notes
+
+This project was restructured for better organization and maintainability.
+
+### Old vs New Structure
+
+**Old files (removed):**
+- `main.py` → Replaced by `scripts/process_kspace.py`
+- `kspace_analysis.py` → Replaced by `scripts/analyze_results.py`
+
+**Old output directories (removed):**
+- `kspace_results/` → Replaced by `results/raw/`
+- `kspace_analysis/` → Replaced by `results/analysis/`
+
+**New structure:**
+- Source code: `src/mr_frequency_sculptor/`
+- Scripts: `scripts/`
+- Data: `data/`
+- Results: `results/raw/` and `results/analysis/`
+
+All configuration is now centralized in `src/mr_frequency_sculptor/config.py`.
 
 ## Dependencies
 
@@ -136,4 +238,3 @@ Edit `src/mr_frequency_sculptor/config.py` to customize:
 
 - MRI data from [M4Raw dataset](https://github.com/mylyu/M4Raw)
 - Shepp-Logan phantom from scikit-image
-
