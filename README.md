@@ -1,253 +1,183 @@
 # MR Frequency Sculptor
 
-A Python tool for exploring k-space (frequency domain) manipulations in MRI image reconstruction. This project demonstrates how different k-space filtering strategies affect image quality, sharpness, and artifacts.
+**MR Frequency Sculptor** is a Python tool for exploring k-space (frequency domain) manipulations in MRI image reconstruction.
+It allows users to see how different k-space filtering strategies affect image quality, sharpness, and artifacts.
+
+![Project Overview](https://github.com/user-attachments/assets/a4509edc-2dd9-4b9d-ba2c-5c99bc4c892d)
+
+---
 
 ## Features
 
-- **K-space Processing**: Convert MRI images to k-space using 2D FFT
-- **Multiple Reconstruction Methods**:
-  - Full k-space (reference/gold standard)
-  - Partial k-space (simulates undersampling)
-  - Low-pass filtering (preserves low frequencies)
-  - High-pass filtering (preserves high frequencies)
-- **Quality Analysis**: Quantitative metrics (sharpness, noise, MAE) and visual comparisons
-- **Support for Multiple Data Sources**: Synthetic phantoms (Shepp-Logan) and real MRI data
-- **Automated Reports**: Text reports with detailed metrics and statistics
+### Core Functionality
 
-## Project Structure
+* **K-space Processing**: Convert MRI images to k-space using 2D FFT.
+* **Reconstruction Methods**:
 
-```
-MR-Frequency-Sculptor/
-├── src/
-│   └── mr_frequency_sculptor/
-│       ├── __init__.py
-│       ├── config.py              # Configuration settings
-│       ├── kspace/                 # K-space processing module
-│       │   ├── __init__.py
-│       │   ├── reconstruction.py  # Image reconstruction functions
-│       │   ├── filters.py          # K-space filtering functions
-│       │   ├── io.py               # I/O operations
-│       │   └── processing.py       # Processing pipeline
-│       ├── data/                   # Data loading module
-│       │   ├── __init__.py
-│       │   └── loaders.py          # Data loading functions
-│       └── analysis/               # Analysis module
-│           ├── __init__.py
-│           ├── metrics.py          # Quality metrics
-│           └── visualization.py   # Visualization functions
-├── scripts/
-│   ├── process_kspace.py          # Main processing script
-│   └── analyze_results.py          # Analysis script
-├── data/                           # Data files directory
-│   └── mri.h5                      # MRI data (from M4Raw dataset)
-├── results/                        # Output directory
-│   ├── raw/                        # Raw k-space and reconstructions
-│   └── analysis/                   # Analysis results and comparisons
-├── requirements.txt
-└── README.md
-```
+  * Full k-space (reference/gold standard)
+  * Partial k-space (simulates undersampling)
+  * Low-pass filtering (preserves low frequencies)
+  * High-pass filtering (preserves high frequencies)
+* **Quantitative Analysis**: Compute metrics like sharpness, noise, and mean absolute error (MAE).
+* **Support for Multiple Data Sources**: Synthetic phantoms (Shepp-Logan) and real MRI slices.
+* **Automated Reports**: Generate text reports and visual comparison plots.
 
-## Installation
+---
+
+## Physics Behind the Project
+
+MRI image formation relies on the **Fourier Relationship** between k-space and the spatial domain.
+
+* **Slice Theorem**: Each 1D acquisition corresponds to a projection in the spatial domain.
+* **2D Fourier Transform**: The complete image is reconstructed from its frequency components:
+
+$$I(x, y) = |\mathcal{F}^{-1}(K(k_x, k_y))|$$
+
+* **Low Frequencies**: Represent the overall contrast and main image structures.
+* **High Frequencies**: Contain edges, fine details, and textures.
+* **Partial K-space Sampling**: Demonstrates undersampling effects, which reduce acquisition time but introduce artifacts.
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/37f5e3e9-bd5b-4f6f-9e2b-846ef6f725b0" width="400">
+</div>
+
+---
+
+## Equations Used
+
+### 1. K-space to Image Reconstruction
+
+* Forward Transform:
+  $$K(k_x, k_y) = \mathcal{F}(I(x, y))$$
+* Inverse Transform:
+  $$I(x, y) = |\mathcal{F}^{-1}(K(k_x, k_y))|$$
+
+### 2. Gaussian Filtering
+
+* Low-pass mask:
+  $$Mask(u, v) = e^{-(u^2 + v^2)/(2\sigma^2)}$$
+* High-pass mask:
+  $$Mask_{HP} = 1 - Mask_{LP}$$
+
+### 3. Partial K-space Mask
+
+* Binary rectangular mask applied to central k-space lines to simulate undersampling.
+
+---
+
+## Scenarios
+
+### 1. Full K-space
+
+* **Objective**: Serve as a reference for comparison.
+* **Visualization Placeholder**:
+  <table>
+  <tr>
+  <td><img src="https://github.com/user-attachments/assets/1f479e1b-b546-43d9-8045-4c722b8383ff" width="250"></td>
+  </tr>
+  </table>
+
+### 2. Low-Pass Filtering
+
+* **Objective**: Remove high frequencies for a smoother image.
+* **Visualization Placeholder**:
+  <table>
+  <tr>
+  <td><img src="https://github.com/user-attachments/assets/3bc740dd-581a-442d-a294-92a845010f82" width="250"></td>
+  </tr>
+  </table>
+
+### 3. High-Pass Filtering
+
+* **Objective**: Remove low frequencies to highlight edges.
+* **Visualization Placeholder**:
+  <table>
+  <tr>
+  <td><img src="https://github.com/user-attachments/assets/fc85dd96-a4bd-4216-951f-dca9e0ae2587" width="250"></td>
+  </tr>
+  </table>
+
+### 4. Partial K-space
+
+* **Objective**: Simulate undersampling effects.
+* **Visualization Placeholder**:
+  <table>
+  <tr>
+  <td><img src="https://github.com/user-attachments/assets/c01bc262-6924-4eed-8c87-8564137e281d" width="250"></td>
+  </tr>
+  </table>
+
+---
+
+## How to Run the Project
 
 1. Clone the repository:
-```bash
-git clone <repository-url>
+
+```
+git clone https://github.com/<username>/MR-Frequency-Sculptor.git
 cd MR-Frequency-Sculptor
 ```
 
 2. Install dependencies:
-```bash
+
+```
 pip install -r requirements.txt
 ```
 
-3. Download MRI data (optional):
-   - The project expects `mri.h5` in the `data/` directory
-   - Data source: [M4Raw dataset](https://github.com/mylyu/M4Raw)
-   - If not available, the script will process only the Shepp-Logan phantom
+3. Run the main script:
 
-## Usage
-
-### Quick Start
-
-**Step 1: Process K-space Data**
-
-Process MRI images and generate k-space reconstructions:
-
-```bash
+```
 python scripts/process_kspace.py
 ```
 
-This will:
-- Process the Shepp-Logan phantom (always works)
-- Process real MRI slice (if `data/mri.h5` exists)
-- Generate k-space visualizations (magnitude, phase, real part)
-- Create reconstructions using all methods
-- Save results to `results/raw/`
+4. Generate analysis reports:
 
-**Step 2: Analyze Results**
-
-Analyze reconstruction quality and generate comparison plots:
-
-```bash
+```
 python scripts/analyze_results.py
 ```
 
-This will:
-- Calculate quality metrics (sharpness, noise, MAE)
-- Generate side-by-side comparison plots
-- Create difference maps showing artifacts
-- Generate text reports with detailed metrics
-- Save results to `results/analysis/`
+---
 
-### Full Workflow
+## Contributors
 
-```bash
-# Step 1: Process k-space
-python scripts/process_kspace.py
-
-# Step 2: Analyze results
-python scripts/analyze_results.py
-```
-
-## Configuration
-
-Edit `src/mr_frequency_sculptor/config.py` to customize:
-
-- `MRI_SLICE_IDX`: Which MRI slice to process (0-17)
-- `PARTIAL_KSpace_FRACTION`: Fraction of k-space to retain (default: 0.5)
-- `LOWPASS_SIGMA_FRACTION`: Low-pass filter sigma (default: 0.05)
-- `HIGHPASS_SIGMA_FRACTION`: High-pass filter sigma (default: 0.05)
-
-## Output Files
-
-### Raw Results (`results/raw/`)
-
-Results are organized by dataset with subdirectories for better structure:
-
-```
-results/raw/
-├── shepp_logan/
-│   ├── originals/
-│   │   └── shepp_logan_phantom.png
-│   ├── kspace/
-│   │   ├── shepp_logan_magnitude.png
-│   │   ├── shepp_logan_phase.png
-│   │   └── shepp_logan_real.png
-│   ├── reconstructions/
-│   │   ├── shepp_logan_full.png
-│   │   ├── shepp_logan_partial.png
-│   │   ├── shepp_logan_lowpass.png
-│   │   └── shepp_logan_highpass.png
-│   └── data/
-│       ├── shepp_logan_kspace.npz
-│       └── shepp_logan_reconstructions.npz
-└── mri_image_slice000/
-    └── (same structure)
-```
-
-### Analysis Results (`results/analysis/`)
-- `*_comparison.png`: Side-by-side comparison with difference maps
-- `*_report.txt`: Detailed text report with metrics and statistics
-
-The report files include:
-- Image quality metrics (Sharpness, Noise, MAE)
-- Difference analysis (comparing each method to full k-space)
-- Image statistics (min, max, mean, std)
-- Timestamp and metric descriptions
-
-## Testing
-
-### Verify Installation
-
-Test that the package can be imported:
-
-```bash
-python -c "import sys; sys.path.insert(0, 'src'); from src.mr_frequency_sculptor import config; print('✓ Package works!')"
-```
-
-### Expected Results
-
-After running both scripts, you should have:
-
-```
-results/
-├── raw/
-│   ├── shepp_logan/
-│   │   ├── originals/
-│   │   ├── kspace/
-│   │   ├── reconstructions/
-│   │   └── data/
-│   └── mri_image_slice000/
-│       └── (same structure)
-└── analysis/
-    ├── shepp_logan_comparison.png
-    ├── shepp_logan_report.txt
-    └── mri_image_slice000_*.png (if MRI data available)
-```
-
-## Troubleshooting
-
-### Missing Dependencies
-If you get `ModuleNotFoundError`, install requirements:
-```bash
-pip install -r requirements.txt
-```
-
-### Missing MRI Data
-If `data/mri.h5` is missing, the script will:
-- ✅ Still process the Shepp-Logan phantom
-- ⚠️ Skip MRI processing with a warning
-- ✅ Continue normally
-
-### Import Errors
-If you get import errors, make sure you're running from the project root:
-```bash
-cd /path/to/MR-Frequency-Sculptor
-python scripts/process_kspace.py
-```
-
-### Missing Files Error
-If you run the analysis script before processing, you'll get a helpful error message:
-```
-Error: Required files not found for 'shepp_logan'.
-Please run 'python scripts/process_kspace.py' first to generate the data.
-```
-
-## Project History / Migration Notes
-
-This project was restructured for better organization and maintainability.
-
-### Old vs New Structure
-
-**Old files (removed):**
-- `main.py` → Replaced by `scripts/process_kspace.py`
-- `kspace_analysis.py` → Replaced by `scripts/analyze_results.py`
-
-**Old output directories (removed):**
-- `kspace_results/` → Replaced by `results/raw/`
-- `kspace_analysis/` → Replaced by `results/analysis/`
-
-**New structure:**
-- Source code: `src/mr_frequency_sculptor/`
-- Scripts: `scripts/`
-- Data: `data/`
-- Results: `results/raw/` and `results/analysis/`
-
-All configuration is now centralized in `src/mr_frequency_sculptor/config.py`.
-
-## Dependencies
-
-- numpy >= 2.1.2
-- matplotlib >= 3.9.2
-- scipy >= 1.14.1
-- h5py >= 3.12.1
-- scikit-image >= 0.24.0
-
-## License
-
-[Add your license here]
-
-## Acknowledgments
-
-- MRI data from [M4Raw dataset](https://github.com/mylyu/M4Raw)
-- Shepp-Logan phantom from scikit-image
+<div>
+<table align="center">
+  <tr>
+        <td align="center">
+      <a href="https://github.com/YassienTawfikk" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/126521373?v=4" width="150px;" alt="Yassien Tawfik"/>
+        <br />
+        <sub><b>Yassien Tawfik</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/madonna-mosaad" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/127048836?v=4" width="150px;" alt="Madonna Mosaad"/>
+        <br />
+        <sub><b>Madonna Mosaad</b></sub>
+      </a>
+    </td>
+        <td align="center">
+      <a href="https://github.com/nancymahmoud1" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/125357872?v=4" width="150px;" alt="Nancy Mahmoud"/>
+        <br />
+        <sub><b>Nancy Mahmoud</b></sub>
+      </a>
+    </td>
+        <td align="center">
+      <a href="https://github.com/RawanAhmed444" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/94761201?v=4" width="150px;" alt="Rawan Ahmed"/>
+        <br />
+        <sub><b>Rawan Ahmed</b></sub>
+      </a>
+    </td> 
+        <td align="center">
+      <a href="https://github.com/NadaMohamedElBasel" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/110432081?v=4" width="150px;" alt="Nada Mohamed"/>
+        <br />
+        <sub><b>Nada Mohamed</b></sub>
+      </a>
+    </td>        
+  </tr>
+</table>
+</div>
