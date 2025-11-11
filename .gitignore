@@ -1,4 +1,11 @@
+# Results and outputs
+results/
 kspace_results/
+kspace_analysis/
+
+# Data files (large)
+data/*.h5
+data/*.hdf5
 
 # macOS
 .DS_Store
@@ -7,6 +14,43 @@ kspace_results/
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
 
 # IDE
 .idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
