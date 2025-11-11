@@ -4,7 +4,7 @@ import numpy as np
 from scipy import ndimage
 
 
-def calculate_sharpness(image: np.ndarray) -> float:
+def calculate_sharpness(image):
     """
     Measure edge sharpness using Sobel gradient.
     
@@ -19,7 +19,7 @@ def calculate_sharpness(image: np.ndarray) -> float:
     return np.mean(np.sqrt(gx ** 2 + gy ** 2))
 
 
-def calculate_noise(image: np.ndarray, corner_frac: float = 0.08) -> float:
+def calculate_noise(image, corner_frac=0.08):
     """
     Estimate noise from corner region.
     
@@ -37,14 +37,14 @@ def calculate_noise(image: np.ndarray, corner_frac: float = 0.08) -> float:
     return np.std(corner)
 
 
-def calculate_mae(img1: np.ndarray, img2: np.ndarray) -> float:
+def calculate_mae(img1, img2):
     """
     Calculate Mean Absolute Error between two images.
-    
+
     Args:
         img1: First image array.
         img2: Second image array.
-        
+
     Returns:
         Mean absolute error.
     """

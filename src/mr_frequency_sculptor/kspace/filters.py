@@ -25,7 +25,7 @@ def gaussian_kspace_mask(shape, sigma_fraction=0.1):
     return mask
 
 
-def simulate_partial_kspace(kspace: np.ndarray, fraction: float = 0.5) -> np.ndarray:
+def simulate_partial_kspace(kspace, fraction=0.5):
     """
     Simulate partial k-space acquisition by masking center region.
     
@@ -44,7 +44,7 @@ def simulate_partial_kspace(kspace: np.ndarray, fraction: float = 0.5) -> np.nda
     return kspace * mask
 
 
-def apply_lowpass_filter(kspace: np.ndarray, sigma_fraction: float = 0.05) -> np.ndarray:
+def apply_lowpass_filter(kspace, sigma_fraction=0.05):
     """
     Apply low-pass filter to k-space (preserves low frequencies).
     
@@ -60,7 +60,7 @@ def apply_lowpass_filter(kspace: np.ndarray, sigma_fraction: float = 0.05) -> np
     return kspace * mask
 
 
-def apply_highpass_filter(kspace: np.ndarray, sigma_fraction: float = 0.05) -> np.ndarray:
+def apply_highpass_filter(kspace, sigma_fraction=0.05):
     """
     Apply high-pass filter to k-space (preserves high frequencies).
     

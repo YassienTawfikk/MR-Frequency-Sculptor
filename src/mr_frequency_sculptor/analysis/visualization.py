@@ -8,7 +8,7 @@ from .metrics import calculate_sharpness, calculate_noise, calculate_mae
 from ..config import RESULTS_RAW_DIR, RESULTS_ANALYSIS_DIR
 
 
-def load_image(filepath: Path) -> np.ndarray:
+def load_image(filepath):
     """
     Load grayscale image without re-normalizing to [0,1] automatically.
     
@@ -36,9 +36,7 @@ def _hide_ticks_and_spines(ax):
         spine.set_visible(False)
 
 
-def _save_report(prefix: str, metrics_data: list, report_path: Path,
-                 full_img: np.ndarray, partial_img: np.ndarray,
-                 lowpass_img: np.ndarray, highpass_img: np.ndarray):
+def _save_report(prefix, metrics_data, report_path, full_img, partial_img, lowpass_img, highpass_img):
     """
     Save analysis report to a text file.
     
@@ -123,7 +121,7 @@ def _save_report(prefix: str, metrics_data: list, report_path: Path,
         f.write('\n'.join(report_lines))
 
 
-def analyze_dataset(prefix: str):
+def analyze_dataset(prefix):
     """
     Load images, calculate metrics, and create comparison visualization.
     

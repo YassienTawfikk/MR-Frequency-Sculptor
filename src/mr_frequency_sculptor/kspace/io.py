@@ -8,7 +8,7 @@ from pathlib import Path
 from ..config import RESULTS_RAW_DIR, FIGURE_SIZE, DPI, COLORMAP
 
 
-def save_reconstructed_image(name: str, image: np.ndarray, output_dir: Path = None):
+def save_reconstructed_image(name, image, output_dir=None):
     """
     Save reconstructed image as PNG.
     
@@ -30,7 +30,7 @@ def save_reconstructed_image(name: str, image: np.ndarray, output_dir: Path = No
     print(f"Saved: {name}.png")
 
 
-def save_kspace(name: str, kspace: np.ndarray, original_image=None, output_dir: Path = None):
+def save_kspace(name, kspace, original_image=None, output_dir=None):
     """
     Save k-space as 3 PNGs (magnitude, phase, real) + .npz file.
     
@@ -83,9 +83,7 @@ def save_kspace(name: str, kspace: np.ndarray, original_image=None, output_dir: 
     print(f"Saved: {name} → _mag.png, _phase.png, _kspace.png, _kspace.npz")
 
 
-def save_reconstructions(prefix: str, full_raw: np.ndarray, partial_raw: np.ndarray,
-                         lowpass_raw: np.ndarray, highpass_raw: np.ndarray,
-                         output_dir: Path = None):
+def save_reconstructions(prefix, full_raw, partial_raw, lowpass_raw, highpass_raw, output_dir=None):
     """
     Save all reconstruction arrays to npz file.
     

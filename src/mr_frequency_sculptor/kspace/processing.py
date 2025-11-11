@@ -14,7 +14,7 @@ from ..config import (
 )
 
 
-def image_to_kspace(image: np.ndarray) -> np.ndarray:
+def image_to_kspace(image):
     """
     Convert image to k-space using 2D FFT.
     
@@ -27,7 +27,7 @@ def image_to_kspace(image: np.ndarray) -> np.ndarray:
     return fftshift(fft2(image))
 
 
-def reconstruct_all_versions(kspace: np.ndarray, prefix: str):
+def reconstruct_all_versions(kspace, prefix):
     """
     Reconstruct images from k-space using multiple methods and save results.
     

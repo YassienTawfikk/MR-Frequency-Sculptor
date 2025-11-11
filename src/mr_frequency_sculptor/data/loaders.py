@@ -9,7 +9,7 @@ from skimage.data import shepp_logan_phantom
 from ..config import H5_FILE, MRI_SLICE_IDX, RESULTS_RAW_DIR, FIGURE_SIZE, DPI
 
 
-def load_phantom() -> np.ndarray:
+def load_phantom():
     """
     Load Shepp-Logan phantom image.
     
@@ -30,7 +30,7 @@ def load_phantom() -> np.ndarray:
     return img
 
 
-def load_mri_slice(slice_idx: int = None, h5_file: Path = None) -> np.ndarray:
+def load_mri_slice(slice_idx=None, h5_file=None):
     """
     Load MRI slice from H5 file.
     
