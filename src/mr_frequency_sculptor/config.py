@@ -12,6 +12,24 @@ RESULTS_DIR = PROJECT_ROOT / "results"
 RESULTS_RAW_DIR = RESULTS_DIR / "raw"
 RESULTS_ANALYSIS_DIR = RESULTS_DIR / "analysis"
 
+def get_dataset_raw_dir(prefix):
+    """
+    Get the output directory for a specific dataset.
+    Creates the directory and subdirectories if they don't exist.
+    
+    Args:
+        prefix: Dataset prefix (e.g., 'shepp_logan', 'mri_image_slice000').
+        
+    Returns:
+        Path to dataset-specific raw output directory.
+    """
+    dataset_dir = RESULTS_RAW_DIR / prefix
+    # Create subdirectories for better organization
+    subdirs = ['originals', 'kspace', 'reconstructions', 'data']
+    for subdir in subdirs:
+        (dataset_dir / subdir).mkdir(parents=True, exist_ok=True)
+    return dataset_dir
+
 # Data files
 H5_FILE = DATA_DIR / "mri.h5"  # from `https://github.com/mylyu/M4Raw`
 MRI_SLICE_IDX = 0  # 0 to 17

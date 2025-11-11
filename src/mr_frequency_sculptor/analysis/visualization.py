@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 from .metrics import calculate_sharpness, calculate_noise, calculate_mae
-from ..config import RESULTS_RAW_DIR, RESULTS_ANALYSIS_DIR
+from ..config import RESULTS_RAW_DIR, RESULTS_ANALYSIS_DIR, get_dataset_raw_dir
 
 
 def load_image(filepath):
@@ -132,8 +132,11 @@ def analyze_dataset(prefix):
     print(f"Analyzing: {prefix}")
     print(f"{'=' * 60}\n")
 
+    # Get dataset-specific directory
+    dataset_dir = get_dataset_raw_dir(prefix)
+
     # Prefer raw npz reconstructions if available
-    npz_path = RESULTS_RAW_DIR / f"{prefix}_recons.npz"
+    npz_path = dataset_dir / "data" / f"{prefix}_reconstructions.npz"
     if npz_path.exists():
         data = np.load(npz_path)
         full_raw = data['full_raw']
@@ -149,17 +152,17 @@ def analyze_dataset(prefix):
         highpass_img = highpass_raw / ref_max
     else:
         # Fallback to PNG images (assumes the main script saved a consistent scale)
-        full_path = RESULTS_RAW_DIR / f"{prefix}_recon_full.png"
+        full_path = dataset_dir / "reconstructions" / f"{prefix}_full.png"
         if not full_path.exists():
             print(f"Error: Required files not found for '{prefix}'.")
             print(f"Expected file: {full_path}")
             print(f"Please run 'python scripts/process_kspace.py' first to generate the data.\n")
             return
-
+        
         full_img = load_image(full_path)
-        partial_img = load_image(RESULTS_RAW_DIR / f"{prefix}_recon_partial.png")
-        lowpass_img = load_image(RESULTS_RAW_DIR / f"{prefix}_recon_lowpass.png")
-        highpass_img = load_image(RESULTS_RAW_DIR / f"{prefix}_recon_highpass.png")
+        partial_img = load_image(dataset_dir / "reconstructions" / f"{prefix}_partial.png")
+        lowpass_img = load_image(dataset_dir / "reconstructions" / f"{prefix}_lowpass.png")
+        highpass_img = load_image(dataset_dir / "reconstructions" / f"{prefix}_highpass.png")
 
     # Calculate metrics
     images = {

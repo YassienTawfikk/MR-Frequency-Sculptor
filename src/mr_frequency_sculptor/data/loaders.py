@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from skimage.data import shepp_logan_phantom
 
-from ..config import H5_FILE, MRI_SLICE_IDX, RESULTS_RAW_DIR, FIGURE_SIZE, DPI
+from ..config import H5_FILE, MRI_SLICE_IDX, RESULTS_RAW_DIR, FIGURE_SIZE, DPI, get_dataset_raw_dir
 
 
 def load_phantom():
@@ -18,13 +18,14 @@ def load_phantom():
     """
     img = shepp_logan_phantom().astype(np.complex64)
 
-    # Save original phantom
+    # Save original phantom to dataset-specific directory
+    dataset_dir = get_dataset_raw_dir("shepp_logan")
     plt.figure(figsize=FIGURE_SIZE)
     im = plt.imshow(np.abs(img), cmap='gray')
     plt.title("Original Phantom")
     plt.axis('off')
     plt.colorbar(im, fraction=0.046)
-    plt.savefig(RESULTS_RAW_DIR / "original_phantom.png", dpi=DPI, bbox_inches='tight')
+    plt.savefig(dataset_dir / "originals" / "shepp_logan_phantom.png", dpi=DPI, bbox_inches='tight')
     plt.close()
 
     return img
@@ -65,13 +66,15 @@ def load_mri_slice(slice_idx=None, h5_file=None):
     else:
         print("Warning: Image is all zero!")
 
-    # Save original MRI slice
+    # Save original MRI slice to dataset-specific directory
+    prefix = f"mri_image_slice{slice_idx:03d}"
+    dataset_dir = get_dataset_raw_dir(prefix)
     plt.figure(figsize=FIGURE_SIZE)
     im = plt.imshow(np.abs(img), cmap='gray')
     plt.title(f"Original MRI Slice {slice_idx}")
     plt.axis('off')
     plt.colorbar(im, fraction=0.046)
-    plt.savefig(RESULTS_RAW_DIR / "original_mri_slice.png", dpi=DPI, bbox_inches='tight')
+    plt.savefig(dataset_dir / "originals" / f"{prefix}_original.png", dpi=DPI, bbox_inches='tight')
     plt.close()
 
     return img

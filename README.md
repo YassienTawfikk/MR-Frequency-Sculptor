@@ -121,15 +121,29 @@ Edit `src/mr_frequency_sculptor/config.py` to customize:
 ## Output Files
 
 ### Raw Results (`results/raw/`)
-- `*_mag.png`: Log-magnitude of k-space
-- `*_phase.png`: Phase of k-space
-- `*_kspace.png`: Real part of k-space
-- `*_kspace.npz`: Complete k-space data (numpy archive)
-- `*_recon_full.png`: Full k-space reconstruction
-- `*_recon_partial.png`: Partial k-space reconstruction
-- `*_recon_lowpass.png`: Low-pass filtered reconstruction
-- `*_recon_highpass.png`: High-pass filtered reconstruction
-- `*_recons.npz`: All reconstruction arrays (for analysis)
+
+Results are organized by dataset with subdirectories for better structure:
+
+```
+results/raw/
+├── shepp_logan/
+│   ├── originals/
+│   │   └── shepp_logan_phantom.png
+│   ├── kspace/
+│   │   ├── shepp_logan_magnitude.png
+│   │   ├── shepp_logan_phase.png
+│   │   └── shepp_logan_real.png
+│   ├── reconstructions/
+│   │   ├── shepp_logan_full.png
+│   │   ├── shepp_logan_partial.png
+│   │   ├── shepp_logan_lowpass.png
+│   │   └── shepp_logan_highpass.png
+│   └── data/
+│       ├── shepp_logan_kspace.npz
+│       └── shepp_logan_reconstructions.npz
+└── mri_image_slice000/
+    └── (same structure)
+```
 
 ### Analysis Results (`results/analysis/`)
 - `*_comparison.png`: Side-by-side comparison with difference maps
@@ -158,18 +172,17 @@ After running both scripts, you should have:
 ```
 results/
 ├── raw/
-│   ├── original_phantom.png
-│   ├── shepp_logan_mag.png
-│   ├── shepp_logan_phase.png
-│   ├── shepp_logan_kspace.png
-│   ├── shepp_logan_recon_full.png
-│   ├── shepp_logan_recon_partial.png
-│   ├── shepp_logan_recon_lowpass.png
-│   ├── shepp_logan_recon_highpass.png
-│   └── shepp_logan_recons.npz
+│   ├── shepp_logan/
+│   │   ├── originals/
+│   │   ├── kspace/
+│   │   ├── reconstructions/
+│   │   └── data/
+│   └── mri_image_slice000/
+│       └── (same structure)
 └── analysis/
     ├── shepp_logan_comparison.png
-    └── shepp_logan_report.txt
+    ├── shepp_logan_report.txt
+    └── mri_image_slice000_*.png (if MRI data available)
 ```
 
 ## Troubleshooting

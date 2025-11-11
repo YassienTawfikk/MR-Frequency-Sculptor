@@ -12,16 +12,18 @@ from src.mr_frequency_sculptor.data import load_phantom, load_mri_slice
 from src.mr_frequency_sculptor.kspace import image_to_kspace
 from src.mr_frequency_sculptor.kspace.processing import reconstruct_all_versions
 from src.mr_frequency_sculptor.kspace.io import save_kspace
-from src.mr_frequency_sculptor.config import RESULTS_RAW_DIR, MRI_SLICE_IDX
+from src.mr_frequency_sculptor.config import RESULTS_RAW_DIR, MRI_SLICE_IDX, get_dataset_raw_dir
 
 
 def process_phantom():
     """Process Shepp-Logan phantom."""
     print("Processing Shepp-Logan phantom...")
+    prefix = "shepp_logan"
     img = load_phantom()
     kspace = image_to_kspace(img)
-    save_kspace("shepp_logan", kspace, original_image=img.real, output_dir=RESULTS_RAW_DIR)
-    reconstruct_all_versions(kspace, "shepp_logan")
+    dataset_dir = get_dataset_raw_dir(prefix)
+    save_kspace(prefix, kspace, original_image=img.real, output_dir=dataset_dir)
+    reconstruct_all_versions(kspace, prefix)
 
 
 def process_mri_image():
@@ -30,9 +32,10 @@ def process_mri_image():
     try:
         img = load_mri_slice()
         kspace = image_to_kspace(img)
-        name = f"mri_image_slice{MRI_SLICE_IDX:03d}"
-        save_kspace(name, kspace, original_image=img.real, output_dir=RESULTS_RAW_DIR)
-        reconstruct_all_versions(kspace, name)
+        prefix = f"mri_image_slice{MRI_SLICE_IDX:03d}"
+        dataset_dir = get_dataset_raw_dir(prefix)
+        save_kspace(prefix, kspace, original_image=img.real, output_dir=dataset_dir)
+        reconstruct_all_versions(kspace, prefix)
     except FileNotFoundError as e:
         print(f"Warning: {e}")
         print("Skipping MRI processing.")
@@ -51,7 +54,11 @@ if __name__ == "__main__":
     process_mri_image()
 
     print(f"\nAll results saved to: {RESULTS_RAW_DIR}")
-    print("   *_mag.png      → log-magnitude of k-space")
-    print("   *_phase.png    → phase")
-    print("   *_kspace.png   → real part")
-    print("   *_recons.npz   → raw reconstructions (full, partial, lowpass, highpass)")
+    print("   Organized by dataset in subdirectories:")
+    print("   - results/raw/shepp_logan/")
+    print("   - results/raw/mri_image_slice000/")
+    print("\n   Each dataset contains subdirectories:")
+    print("   - originals/            → Original images")
+    print("   - kspace/               → K-space visualizations (magnitude, phase, real)")
+    print("   - reconstructions/      → Reconstruction images (full, partial, lowpass, highpass)")
+    print("   - data/                 → NPZ files (kspace data and reconstruction arrays)")
