@@ -349,7 +349,7 @@ class MRFrequencySculptorApp(QMainWindow):
         self.sigma_spinbox.setMinimum(1)
         self.sigma_spinbox.setMaximum(20)
         self.sigma_spinbox.setValue(int(LOWPASS_SIGMA_FRACTION * 1000))
-        self.sigma_spinbox.setSuffix("‰")
+        self.sigma_spinbox.setSuffix("%")
         sigma_layout.addWidget(self.sigma_spinbox)
         params_layout.addLayout(sigma_layout)
 
