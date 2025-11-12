@@ -3,7 +3,13 @@
 **MR Frequency Sculptor** is a Python tool for exploring k-space (frequency domain) manipulations in MRI image reconstruction.
 It allows users to see how different k-space filtering strategies affect image quality, sharpness, and artifacts.
 
-![Project Overview](https://github.com/user-attachments/assets/a4509edc-2dd9-4b9d-ba2c-5c99bc4c892d)
+![Project Overview](https://github.com/user-attachments/assets/1379a938-ab7e-4788-99de-fb53e9e042e4)
+
+---
+
+## Demo
+
+https://github.com/user-attachments/assets/8e276210-3328-45f3-ac60-1af6480b6e21
 
 ---
 
