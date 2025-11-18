@@ -21,7 +21,7 @@ from matplotlib.figure import Figure
 import h5py
 
 # Import project modules
-from ..data.loaders import load_phantom
+from ..data_loaders.loaders import load_phantom
 from ..kspace import image_to_kspace
 from ..kspace.reconstruction import reconstruct_image_from_kspace, normalize_by_reference
 from ..kspace.filters import (

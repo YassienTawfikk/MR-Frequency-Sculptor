@@ -3,10 +3,6 @@ results/
 kspace_results/
 kspace_analysis/
 
-# Data files (large)
-data/*.h5
-data/*.hdf5
-
 # macOS
 .DS_Store
 
